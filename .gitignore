@@ -1,0 +1,40 @@
+# Dependency directories
+# Ini adalah folder tempat semua package npm diinstal.
+# Folder ini bisa dibuat ulang kapan saja dengan 'npm install'.
+node_modules/
+
+# Environment variables
+# SANGAT PENTING! File ini berisi kunci rahasia, password database, dan API key.
+# JANGAN PERNAH diunggah ke Git. Setiap developer harus punya file .env sendiri.
+.env
+
+# Log files
+# Abaikan file log yang dibuat oleh npm atau aplikasi Anda.
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# User Uploads
+# Abaikan file yang diunggah oleh pengguna jika Anda menggunakan opsi penyimpanan lokal.
+# Ini mencegah gambar-gambar tes diunggah ke repository.
+public/images/
+
+# IDE & Editor directories
+# Konfigurasi spesifik untuk editor kode Anda (VS Code, JetBrains, dll).
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+# File yang dibuat otomatis oleh sistem operasi seperti macOS atau Windows.
+.DS_Store
+Thumbs.db
+
+# Build & Production
+# Folder hasil build jika nanti Anda menggunakan TypeScript atau bundler lainnya.
+dist/
+build/
+.qodo
