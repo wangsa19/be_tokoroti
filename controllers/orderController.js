@@ -1,3 +1,4 @@
+const snap = require('../config/midtrans');
 const db = require('../models');
 const { Order, OrderItem, Product, User } = db;
 
@@ -33,7 +34,7 @@ exports.createOrder = async (req, res) => {
       deliveryAddress,
       deliveryLatitude,
       deliveryLongitude,
-      status: 'paid'
+      status: 'unpaid'
     }, { transaction });
 
     for (const itemData of orderItemsData) {
@@ -51,7 +52,94 @@ exports.createOrder = async (req, res) => {
     res.status(500).send({ message: error.message || "Failed to create order." });
   }
 };
+exports.createPayment = async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const order = await Order.findByPk(orderId, {
+            include: [
+                { model: User, attributes: ['name', 'email'] },
+                { model: OrderItem, include: [{ model: Product }] }
+            ]
+        });
 
+        if (!order) {
+            return res.status(404).send({ message: 'Order not found.' });
+        }
+
+        const transactionId = `TR-ROTI-${order.id}-${Date.now()}`;
+
+        const parameter = {
+            transaction_details: {
+                order_id: transactionId,
+                gross_amount: parseFloat(order.totalAmount),
+            },
+            customer_details: {
+                first_name: order.User.name,
+                email: order.User.email,
+            },
+            item_details: order.OrderItems
+                .filter(item => item.Product)
+                .map(item => ({
+                    id: item.Product.id,
+                    price: parseFloat(item.pricePerItem),
+                    quantity: item.quantity,
+                    name: item.Product.name
+                }))
+        };
+
+        const transaction = await snap.createTransaction(parameter);
+        const snapUrl = transaction.redirect_url;
+
+        await order.update({
+            transactionId: transactionId,
+            snapUrl: snapUrl
+        });
+
+        res.status(200).send({ snapUrl });
+
+    } catch (error) {
+        console.error("Payment Creation Error:", error);
+        res.status(500).send({ message: error.message });
+    }
+};
+
+exports.handlePaymentNotification = async (req, res) => {
+    try {
+        const notificationJson = req.body;
+
+        // Cukup teruskan body notifikasi JSON ke fungsi ini.
+        // Library akan menangani verifikasi signature key secara otomatis.
+        const statusResponse = await snap.transaction.notification(notificationJson);
+
+        const order_id = statusResponse.order_id;
+        const transaction_status = statusResponse.transaction_status;
+        const fraud_status = statusResponse.fraud_status;
+
+        console.log(`Transaction notification received. Order ID: ${order_id}. Transaction status: ${transaction_status}. Fraud status: ${fraud_status}`);
+
+        const order = await Order.findOne({ where: { transactionId: order_id } });
+        if (!order) {
+            // Beri respon 200 OK agar Midtrans tidak mengirim notifikasi berulang.
+            return res.status(200).send("Order not found, but notification acknowledged.");
+        }
+
+        // Logika update status pesanan (sudah benar)
+        if (transaction_status == 'capture' || transaction_status == 'settlement') {
+            if (fraud_status == 'accept') {
+                await order.update({ status: 'paid' });
+            }
+        } else if (transaction_status == 'deny' || transaction_status == 'cancel' || transaction_status == 'expire') {
+            await order.update({ status: 'failed' });
+        }
+
+        res.status(200).send("Notification received successfully.");
+
+    } catch (error) {
+        // Jika signature key tidak cocok atau ada error lain, akan masuk ke sini.
+        console.error("Payment Notification Error:", error);
+        res.status(500).send({ message: error.message });
+    }
+};
 // --- Admin Section ---
 exports.getAllTransactions = async (req, res) => {
     try {

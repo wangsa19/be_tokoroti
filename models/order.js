@@ -11,10 +11,6 @@ module.exports = (sequelize) => {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false
     },
-    status: {
-      type: DataTypes.ENUM('pending', 'paid', 'delivered'),
-      defaultValue: 'pending'
-    },
     deliveryAddress: {
       type: DataTypes.STRING
     },
@@ -23,6 +19,18 @@ module.exports = (sequelize) => {
     },
     deliveryLongitude: {
       type: DataTypes.DOUBLE
+    },
+    status: {
+      type: DataTypes.ENUM('unpaid', 'paid', 'expired', 'failed', 'delivered'),
+      defaultValue: 'unpaid'
+    },
+    snapUrl: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    transactionId: { 
+      type: DataTypes.STRING,
+      allowNull: true
     }
   });
 

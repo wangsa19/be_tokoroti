@@ -11,9 +11,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-db.sequelize.sync({ force: false }).then(() => {
+db.sequelize.sync({ alter: true }).then(() => {
   console.log('Database synced.');
-//   initial(); // Uncomment untuk membuat data awal
+  initial(); // Uncomment untuk membuat data awal
 });
 
 // Routes

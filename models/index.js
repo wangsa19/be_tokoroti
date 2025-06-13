@@ -22,7 +22,9 @@ db.OrderItem.belongsTo(db.Order);
 
 // Product -> OrderItem (One-to-Many)
 db.Product.hasMany(db.OrderItem);
-db.OrderItem.belongsTo(db.Product);
-
+db.OrderItem.belongsTo(db.Product, {
+  foreignKey: 'ProductId',
+  onDelete: 'RESTRICT'
+});
 
 module.exports = db;

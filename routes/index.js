@@ -14,7 +14,11 @@ router.post('/auth/login', authController.login);
 router.get('/products', productController.getAllProducts);
 
 // --- Order Routes (Customer) ---
-router.post('/orders', [authJwt.verifyToken], orderController.createOrder);
+// router.post('/orders', [authJwt.verifyToken], orderController.createOrder);
+router.post('/orders', [authJwt.verifyToken], orderController.createOrder); // Rute membuat pesanan
+router.post('/orders/:orderId/create-payment', [authJwt.verifyToken], orderController.createPayment); // Rute BARU untuk bayar
+
+router.post('/payment-notification', orderController.handlePaymentNotification); // Rute BARU untuk notifikasi
 
 // --- Admin Routes ---
 router.post('/products', [authJwt.verifyToken, authJwt.isAdmin, upload.single('productImage')], productController.createProduct);
