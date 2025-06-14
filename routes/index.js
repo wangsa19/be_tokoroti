@@ -22,6 +22,7 @@ router.put('/cart/:cartItemId', [authJwt.verifyToken], cartController.updateCart
 router.delete('/cart/:cartItemId', [authJwt.verifyToken], cartController.removeCartItem); // Rute untuk MENGHAPUS item dari keranjang
 
 // router.post('/orders', [authJwt.verifyToken], orderController.createOrder);
+router.get('/orders', [authJwt.verifyToken], orderController.getAllOrdersForUser); // Rute membuat pesanan
 router.post('/orders', [authJwt.verifyToken], orderController.createOrder); // Rute membuat pesanan
 router.post('/orders/:orderId/create-payment', [authJwt.verifyToken], orderController.createPayment); // Rute BARU untuk bayar
 

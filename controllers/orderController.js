@@ -52,6 +52,30 @@ exports.createOrder = async (req, res) => {
     res.status(500).send({ message: error.message || "Failed to create order." });
   }
 };
+exports.getAllOrdersForUser = async (req, res) => {
+    try {
+        const userId = req.userId; // from authJwt middleware
+        console.log(object)
+        const orders = await Order.findAll({
+            where: { UserId: userId },
+            include: [{
+                model: OrderItem,
+                include: [{
+                    model: Product,
+                    attributes: ['id', 'name', 'imageUrl'] // Specify which product attributes to include
+                }]
+            }],
+            order: [['createdAt', 'DESC']] // Show most recent orders first
+        });
+
+        res.status(200).send(orders);
+    } catch (error) {
+        console.error("Get User Orders Error:", error);
+        res.status(500).send({ message: error.message || "Failed to retrieve orders." });
+    }
+};
+
+
 exports.createPayment = async (req, res) => {
     try {
         const orderId = req.params.orderId;

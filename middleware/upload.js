@@ -1,18 +1,19 @@
 const multer = require('multer');
 
 // Strategi penyimpanan: simpan file di memori sebagai Buffer.
-// Ini adalah cara terbaik untuk integrasi dengan Cloudinary agar tidak perlu menyimpan file sementara di disk.
 const storage = multer.memoryStorage();
 
 // Filter untuk memastikan hanya file gambar yang diterima.
 const fileFilter = (req, file, cb) => {
-    // Periksa tipe MIME file, harus diawali dengan 'image/'
-    if (file.mimetype.startsWith('image/')) {
-        // Terima file jika itu adalah gambar
+    // Tipe MIME yang diizinkan
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
+        // Terima file jika tipe MIME-nya ada dalam daftar yang diizinkan
         cb(null, true);
     } else {
-        // Tolak file jika bukan gambar, kirim pesan error
-        cb(new Error('File yang diunggah bukan gambar!'), false);
+        // Tolak file jika bukan gambar, kirim pesan error yang lebih spesifik
+        cb(new Error('Tipe file tidak didukung! Hanya .png, .jpg, .jpeg, .gif yang diizinkan.'), false);
     }
 };
 
@@ -21,9 +22,9 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024 // Batas ukuran file 5MB (opsional, tapi sangat disarankan)
+        fileSize: 5 * 1024 * 1024 // Batas ukuran file 5MB
     }
 });
 
-// Ekspor middleware yang sudah dikonfigurasi agar bisa digunakan di file rute.
+// Ekspor middleware yang sudah dikonfigurasi.
 module.exports = upload;
