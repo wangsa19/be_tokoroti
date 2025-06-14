@@ -36,4 +36,10 @@ router.get('/admin/transactions', [authJwt.verifyToken, authJwt.isAdmin], orderC
 // Melihat semua pelanggan (hanya admin)
 router.get('/admin/users', [authJwt.verifyToken, authJwt.isAdmin], orderController.getAllCustomers);
 
+router.post('/orders/:orderId/complete', [authJwt.verifyToken], orderController.completeOrder);
+router.post('/payment-notification', orderController.handlePaymentNotification);
+
+// --- RUTE BARU UNTUK RIWAYAT PESANAN PENGGUNA ---
+router.get('/orders/my-history', [authJwt.verifyToken], orderController.getOrderHistory);
+
 module.exports = router;

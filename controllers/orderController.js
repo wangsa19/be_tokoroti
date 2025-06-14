@@ -170,3 +170,47 @@ exports.getAllCustomers = async (req, res) => {
         res.status(500).send({ message: error.message });
     }
 };
+
+exports.getOrderHistory = async (req, res) => {
+  try {
+    const userId = req.userId; // ID pengguna didapat dari token JWT
+
+    const orders = await Order.findAll({
+      where: { UserId: userId },
+      include: [ // Sertakan detail item di setiap pesanan
+        {
+          model: OrderItem,
+          include: [{ model: Product, attributes: ['name', 'imageUrl'] }]
+        }
+      ],
+      order: [['createdAt', 'DESC']] // Urutkan dari yang terbaru
+    });
+
+    res.status(200).send(orders);
+  } catch (error) {
+    console.error("Error fetching order history:", error); // Tambahkan log ini untuk debug
+    res.status(500).send({ message: error.message || "Gagal mendapatkan riwayat pesanan." });
+  }
+};
+
+// --- PASTIKAN FUNGSI INI SUDAH ADA DI BAGIAN AKHIR FILE ---
+exports.completeOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await Order.findByPk(orderId);
+
+    if (!order) {
+      // Jika order tidak ditemukan, backend akan kirim error 404
+      return res.status(404).send({ message: "Order tidak ditemukan." });
+    }
+
+    // Ubah status order menjadi 'paid'
+    await order.update({ status: 'paid' });
+
+    res.status(200).send({ message: "Pesanan telah berhasil diselesaikan." });
+
+  } catch (error) {
+    // Jika ada error database, backend akan kirim error 500
+    res.status(500).send({ message: error.message || "Gagal menyelesaikan pesanan." });
+  }
+};
