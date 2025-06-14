@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-db.sequelize.sync({ alter: true }).then(() => {
+db.sequelize.sync({ force: true }).then(() => {
   console.log('Database synced.');
   initial(); // Uncomment untuk membuat data awal
 });
@@ -45,9 +45,9 @@ async function initial() {
     const productCount = await db.Product.count();
     if(productCount === 0) {
         db.Product.bulkCreate([
-            {name: 'Roti Coklat', description: 'Roti empuk dengan isian coklat lumer', price: 5000},
-            {name: 'Donat Gula', description: 'Donat klasik dengan taburan gula halus', price: 3000},
-            {name: 'Roti Keju', description: 'Roti dengan topping keju cheddar', price: 6000}
+            {name: 'Roti Coklat', description: 'Roti empuk dengan isian coklat lumer', price: 5000, imageUrl: "https://res.cloudinary.com/dtqtfbtee/image/upload/v1749872749/WhatsApp_Image_2025-06-14_at_10.43.41_5aad473d_bnagqv.jpg"},
+            {name: 'Donat Gula', description: 'Donat klasik dengan taburan gula halus', price: 3000, imageUrl: "https://res.cloudinary.com/dtqtfbtee/image/upload/v1749872554/WhatsApp_Image_2025-06-14_at_10.42.04_52b30b42_swjaxn.jpg"},
+            {name: 'Roti Keju', description: 'Roti dengan topping keju cheddar', price: 6000, imageUrl: "https://res.cloudinary.com/dtqtfbtee/image/upload/v1749872499/WhatsApp_Image_2025-06-14_at_10.40.22_18ff6c37_hg4vde.jpg"}
         ]);
     }
 }
